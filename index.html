@@ -1,13 +1,17 @@
-
 <!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Melody 声乐社团活动室预约</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
+      --bg: #f7faf9;
+      --paper: #ffffff;
+      --ink: #172522;
+      --muted: #61736f;
+      --line: #dbe8e5;
+      --line-strong: #b7d3ce;
       --teal: #008f86;
       --teal-dark: #006a65;
       --teal-soft: #dff7f4;
@@ -15,50 +19,47 @@
       --gold-soft: #fff3d8;
       --blue: #286fe6;
       --blue-soft: #e7f0ff;
-      --ink: #172522;
-      --muted: #61736f;
-      --line: #dbe8e5;
+      --danger: #b43c2d;
+      --danger-soft: #fff0ed;
       --shadow: 0 24px 70px rgba(31, 65, 61, 0.12);
       font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
     }
 
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       min-height: 100vh;
       color: var(--ink);
       background:
-        linear-gradient(90deg, rgba(255,255,255,.95), rgba(255,255,255,.86)),
-        radial-gradient(circle at 82% 12%, #dff7f4, transparent 28%),
-        linear-gradient(135deg, #f7faf9, #fff);
+        linear-gradient(90deg, rgba(255,255,255,.96), rgba(255,255,255,.9)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='820' viewBox='0 0 1200 820'%3E%3Crect width='1200' height='820' fill='%23f7faf9'/%3E%3Cg opacity='.26' stroke='%23008f86' fill='none'%3E%3Cpath d='M0 610 C170 560 310 678 520 620 S850 548 1200 646'/%3E%3Cpath d='M0 632 C170 582 310 700 520 642 S850 570 1200 668'/%3E%3Cpath d='M0 654 C170 604 310 722 520 664 S850 592 1200 690'/%3E%3Cpath d='M0 676 C170 626 310 744 520 686 S850 614 1200 712'/%3E%3C/g%3E%3Cg opacity='.19' fill='%23c99628'%3E%3Ccircle cx='104' cy='134' r='8'/%3E%3Crect x='110' y='78' width='5' height='58' rx='2'/%3E%3Cpath d='M115 80 C150 88 154 103 150 124 C138 106 124 99 115 98 Z'/%3E%3Ccircle cx='1032' cy='176' r='10'/%3E%3Crect x='1040' y='110' width='6' height='69' rx='2'/%3E%3Cpath d='M1046 112 C1084 124 1090 142 1086 164 C1070 145 1059 136 1046 132 Z'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: cover;
+      overflow-x: hidden;
     }
 
     button, input { font: inherit; }
     button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .48; }
+    svg { flex: none; }
 
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
     .topbar {
-      min-height: 76px;
-      padding: 16px 42px;
+      min-height: 78px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 18px;
+      padding: 14px 46px;
       border-bottom: 1px solid var(--line);
-      background: rgba(255, 255, 255, .9);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(18px);
       position: sticky;
       top: 0;
       z-index: 3;
     }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--teal-dark);
-      font-size: 24px;
-      font-weight: 800;
-    }
-
-    .mark {
+    .brand { display: flex; align-items: center; gap: 13px; font-size: 25px; font-weight: 800; color: var(--teal-dark); }
+    .brand-mark {
       width: 40px;
       height: 40px;
       display: grid;
@@ -66,700 +67,34 @@
       border-radius: 8px;
       color: #fff;
       background: linear-gradient(135deg, var(--teal), #25b7ad);
-      box-shadow: 0 12px 24px rgba(0,143,134,.22);
+      box-shadow: 0 12px 24px rgba(0, 143, 134, .22);
     }
-
-    .date-note { color: var(--gold); font-weight: 700; }
+    .brand-mark svg { width: 24px; height: 24px; }
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--teal-dark);
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .user-pill button {
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--teal-dark);
+      font-weight: 800;
+    }
 
     .home {
+      flex: 1;
       display: grid;
-      grid-template-columns: minmax(300px, .86fr) minmax(580px, 1.2fr);
-      gap: 42px;
+      grid-template-columns: minmax(320px, .95fr) minmax(360px, .85fr);
+      gap: 46px;
       align-items: center;
-      padding: 48px 54px;
+      padding: 54px;
     }
-
-    .hero h1 {
-      margin: 0;
-      font-size: clamp(50px, 6.6vw, 100px);
-      line-height: 1.05;
-      color: #10231f;
-    }
-
-    .hero p {
-      max-width: 570px;
-      color: #536864;
-      font-size: 21px;
-      line-height: 1.72;
-    }
-
-    .actions {
-      display: grid;
-      gap: 14px;
-      width: min(338px, 100%);
-      margin-top: 22px;
-    }
-
-    .primary, .secondary, .submit, .modal button {
-      min-height: 54px;
-      border-radius: 8px;
-      border: 1px solid rgba(0,143,134,.28);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      font-size: 18px;
-      font-weight: 800;
-    }
-
-    .primary, .submit, .modal button {
-      color: #fff;
-      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
-      box-shadow: 0 14px 30px rgba(0,143,134,.22);
-    }
-
-    .secondary {
-      color: var(--teal-dark);
-      background: #fff;
-      border-color: #b7d3ce;
-    }
-
-    .rules, .intro, .booking-inner {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: rgba(255,255,255,.94);
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .rules {
-      width: min(360px, 100%);
-      margin-top: 58px;
-      padding: 22px 24px;
-    }
-
-    .rules h2 { margin: 0 0 12px; color: var(--teal-dark); font-size: 19px; }
-    .rule { padding: 10px 0; border-top: 1px solid #edf3f1; color: #354944; }
-    .rule:first-of-type { border-top: 0; }
-
-    .room {
-      min-height: 220px;
-      padding: 26px;
-      display: grid;
-      grid-template-columns: 1fr 210px;
-      gap: 18px;
-      background: linear-gradient(135deg, #effaf8, #fff 58%, #fff6df);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .room h2 { margin: 0; font-size: 30px; }
-    .room p { color: #5b716d; line-height: 1.7; }
-
-    .piano {
-      height: 160px;
-      align-self: end;
-      border-radius: 8px;
-      border: 1px solid #b9d7d2;
-      background: #122320;
-      position: relative;
-    }
-
-    .piano:before {
-      content: "";
-      position: absolute;
-      left: 20px;
-      right: 20px;
-      bottom: 20px;
-      height: 52px;
-      background: repeating-linear-gradient(90deg, #fff 0 22px, #dfe9e6 22px 24px);
-      border-radius: 4px;
-    }
-
-    .piano:after {
-      content: "";
-      position: absolute;
-      left: 36px;
-      right: 48px;
-      bottom: 49px;
-      height: 30px;
-      background: repeating-linear-gradient(90deg, #101918 0 13px, transparent 13px 24px);
-    }
-
-    .preview { padding: 18px; }
-
-    .booking-screen {
-      display: none;
-      min-height: calc(100vh - 76px);
-      padding: 28px 38px;
-    }
-
-    .booking-screen.active { display: block; }
-    .home.hidden { display: none; }
-
-    .booking-head {
-      min-height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(90deg, #fff, #f4fbfa);
-    }
-
-    .back {
-      border: 0;
-      background: transparent;
-      color: #17302b;
-      font-size: 19px;
-      font-weight: 800;
-    }
-
-    .legend { display: flex; gap: 18px; color: #526763; font-size: 14px; }
-    .legend span { display: inline-flex; align-items: center; gap: 7px; }
-    .dot { width: 16px; height: 16px; border-radius: 3px; border: 1px solid currentColor; }
-    .available-dot { color: var(--teal); background: var(--teal-soft); }
-    .booked-dot { color: var(--gold); background: var(--gold-soft); }
-    .selected-dot { color: var(--blue); background: var(--blue-soft); }
-
-    .booking-body {
-      display: grid;
-      grid-template-columns: 312px 1fr;
-      gap: 14px;
-      padding: 14px;
-    }
-
-    .form-panel, .schedule {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: linear-gradient(180deg, #fff, #f4fbfa);
-      overflow: hidden;
-    }
-
-    .form-panel { padding: 18px; }
-    .panel-title { margin: 0 0 20px; color: var(--teal-dark); font-weight: 800; font-size: 18px; }
-    .field-row { display: flex; justify-content: space-between; margin: 15px 0 9px; font-size: 14px; font-weight: 760; }
-    .hint, .sync { color: var(--teal); font-weight: 700; }
-
-    .name-field { position: relative; margin-bottom: 10px; }
-
-    .name-field input {
-      width: 100%;
-      height: 48px;
-      padding: 0 40px 0 14px;
-      border-radius: 6px;
-      border: 1px solid #cbdcd8;
-      background: #fff;
-      outline: none;
-    }
-
-    .name-field input:focus {
-      border-color: var(--teal);
-      box-shadow: 0 0 0 3px rgba(0,143,134,.12);
-    }
-
-    .clear {
-      position: absolute;
-      right: 10px;
-      top: 12px;
-      border: 0;
-      background: transparent;
-      color: #80938f;
-      font-size: 22px;
-    }
-
-    .add {
-      width: 100%;
-      height: 46px;
-      border: 1px dashed rgba(0,143,134,.55);
-      border-radius: 6px;
-      color: var(--teal-dark);
-      background: #eefaf8;
-      font-weight: 700;
-    }
-
-    .box {
-      margin-top: 22px;
-      padding: 16px;
-      min-height: 152px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
-    }
-
-    .range { margin: 14px 0; font-size: 22px; font-weight: 800; color: #18322d; }
-    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-    .chips span { padding: 8px 10px; border-radius: 6px; border: 1px solid #96bdfb; background: var(--blue-soft); color: #174d9d; font-size: 13px; }
-
-    .submit { width: 100%; margin-top: 22px; }
-    .cancel-booking {
-      width: 100%;
-      min-height: 46px;
-      margin-top: 10px;
-      border-radius: 8px;
-      border: 1px solid #e7bd67;
-      color: #76500a;
-      background: var(--gold-soft);
-      font-weight: 800;
-    }
-
-    .cancel-booking:disabled { opacity: .48; cursor: not-allowed; }
-    .notice { margin: 14px 4px 0; color: #657974; font-size: 12px; line-height: 1.6; }
-    .toast { min-height: 28px; margin-top: 10px; color: #b85b12; font-size: 13px; }
-
-    .schedule-title {
-      min-height: 58px;
-      display: flex;
-      align-items: baseline;
-      gap: 18px;
-      padding: 0 18px;
-      border-bottom: 1px solid var(--line);
-      background: #fbfefd;
-    }
-
-    .schedule-title h2 { margin: 0; color: var(--teal-dark); font-size: 19px; }
-    .schedule-title p { margin: 0; color: var(--muted); font-size: 13px; }
-
-    .grid { display: grid; grid-template-columns: repeat(2, minmax(240px, 1fr)); }
-
-    .slot {
-      min-height: 44px;
-      display: grid;
-      grid-template-columns: 110px 1fr;
-      border: 0;
-      border-bottom: 1px solid #e6efed;
-      border-right: 1px solid #e6efed;
-      background: #f4fbfa;
-      color: #24423d;
-      text-align: left;
-    }
-
-    .slot:nth-child(2n) { border-right: 0; }
-    .slot:hover { background: #e3f7f4; }
-    .slot.booked { background: var(--gold-soft); color: #73510b; }
-    .slot.booked.canceling { outline: 2px solid var(--gold); outline-offset: -2px; }
-    .slot.selected { background: var(--blue-soft); color: #164d9d; }
-
-    .time { padding: 12px 14px; border-right: 1px solid #e1ece9; font-size: 14px; font-weight: 700; }
-    .status { padding: 12px 14px; font-size: 14px; }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(15,31,29,.28);
-      backdrop-filter: blur(4px);
-      padding: 24px;
-      z-index: 5;
-    }
-
-    .modal-backdrop.show { display: flex; }
-    .modal { width: min(380px, 100%); padding: 30px; text-align: center; border-radius: 8px; border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow); }
-    .check { width: 70px; height: 70px; margin: 0 auto 18px; border: 3px solid var(--teal); border-radius: 50%; display: grid; place-items: center; color: var(--teal); font-size: 38px; }
-    .modal h2 { margin: 0 0 12px; font-size: 28px; }
-    .modal p { color: #526763; line-height: 1.7; }
-
-    @media (max-width: 1080px) {
-      .topbar { align-items: flex-start; flex-direction: column; }
-      .home { grid-template-columns: 1fr; padding: 30px 18px; }
-      .room, .booking-body { grid-template-columns: 1fr; }
-      .grid { grid-template-columns: 1fr; }
-      .slot { border-right: 0; }
-      .booking-screen { padding: 18px; }
-      .booking-head { align-items: flex-start; gap: 14px; flex-direction: column; padding: 18px; }
-      .legend { flex-wrap: wrap; }
-    }
-  </style>
-</head>
-<body>
-  <div class="app">
-    <header class="topbar">
-      <div class="brand"><span class="mark">♪</span><span>Melody 声乐社团活动室</span></div>
-      <div class="date-note">仅可预约明日</div>
-    </header>
-
-    <section class="home" id="homeView">
-      <div class="hero">
-        <h1>Melody<br>声乐社团活动室</h1>
-        <p>排练、声乐课、合唱分声部练习的共享空间。查看明日预约情况后，按半小时连续选择你的使用时段。</p>
-        <div class="actions">
-          <button class="primary" id="enterBooking">查看预约情况 ›</button>
-          <button class="secondary" id="ruleFocus">预约规则</button>
-        </div>
-        <div class="rules" id="rules">
-          <h2>预约规则</h2>
-          <div class="rule">仅可预约明日</div>
-          <div class="rule">30 分钟为单位</div>
-          <div class="rule">可连续选择多个时段</div>
-          <div class="rule">每次最多填写 2 人</div>
-        </div>
-      </div>
-
-      <aside class="intro">
-        <div class="room">
-          <div>
-            <h2>明亮、安静、适合排练</h2>
-            <p>活动室适合独唱练习、小组排练与合唱分声部磨合。预约公开显示，避免同一时段重复占用。</p>
-          </div>
-          <div class="piano"></div>
-        </div>
-        <div class="preview"><div class="booking-inner" id="previewBooking"></div></div>
-      </aside>
-    </section>
-
-    <section class="booking-screen" id="bookingView">
-      <div class="booking-inner" id="realBooking"></div>
-    </section>
-  </div>
-
-  <div class="modal-backdrop" id="successModal">
-    <div class="modal">
-      <div class="check">✓</div>
-      <h2>预约成功</h2>
-      <p id="successText"></p>
-      <button id="closeModal">知道了</button>
-    </div>
-  </div>
-
-  <script>
-    const SUPABASE_URL = "https://rglxqniiegfhrvkxeogn.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_2k7gdkSwcZfxhNewvz-ycw_Ufo-PfGR";
-
-    function formatDateKey(date) {
-      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
-    }
-
-    const today = new Date();
-    const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-    const dateKey = formatDateKey(tomorrow);
-    const fmtDate = new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", weekday: "long" }).format(tomorrow);
-
-    const slots = [];
-    for (let h = 8; h < 22; h++) {
-      slots.push(`${String(h).padStart(2, "0")}:00 - ${String(h).padStart(2, "0")}:30`);
-      slots.push(`${String(h).padStart(2, "0")}:30 - ${String(h + 1).padStart(2, "0")}:00`);
-    }
-
-    const storageKey = `melody-bookings-${dateKey}`;
-    const hasSupabase = SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY.length > 20 && window.supabase;
-    const supabaseClient = hasSupabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
-    const syncModeText = supabaseClient ? "云端同步预约情况" : "本地预览";
-
-    let bookings = {};
-    let selected = [];
-    let cancelTarget = null;
-    let people = [""];
-
-    function loadLocalBookings() {
-      try { return JSON.parse(localStorage.getItem(storageKey) || "{}"); }
-      catch { return {}; }
-    }
-
-    function saveLocalBookings() {
-      localStorage.setItem(storageKey, JSON.stringify(bookings));
-    }
-
-    function startOf(slot) { return slot.split(" - ")[0]; }
-    function endOf(slot) { return slot.split(" - ")[1]; }
-    function validNames() { return people.map(p => p.trim()).filter(Boolean); }
-
-    function continuousRange(indices) {
-      const sorted = [...indices].sort((a, b) => a - b);
-      return sorted.every((n, i) => i === 0 || n === sorted[i - 1] + 1);
-    }
-
-    function selectedLabel() {
-      if (!selected.length) return "请在右侧选择连续时间段";
-      const sorted = [...selected].sort((a, b) => a - b);
-      return `${startOf(slots[sorted[0]])} - ${endOf(slots[sorted[sorted.length - 1]])}`;
-    }
-
-    function bookingMarkup(isPreview = false) {
-      const names = validNames();
-
-      return `
-        <div class="booking-head">
-          <button class="back" data-back>← 明日预约情况</button>
-          <div class="legend">
-            <span><i class="dot available-dot"></i>可预约</span>
-            <span><i class="dot booked-dot"></i>已预约</span>
-            <span><i class="dot selected-dot"></i>已选择</span>
-          </div>
-        </div>
-
-        <div class="booking-body">
-          <aside class="form-panel">
-            <div class="panel-title">♪ 预约信息</div>
-            <div class="field-row"><span>预约姓名</span><span class="hint">可填写 1-2 人</span></div>
-
-            ${people.map((person, index) => `
-              <div class="name-field">
-                <input ${isPreview ? 'tabindex="-1"' : ""} data-name-index="${index}" value="${person}" placeholder="请输入姓名" maxlength="12">
-                <button class="clear" data-clear="${index}">×</button>
-              </div>
-            `).join("")}
-
-            <button class="add" data-add ${people.length >= 2 ? "disabled" : ""}>＋ 添加第二人（可选）</button>
-
-            <div class="field-row" style="margin-top:22px"><span>选择预约时间</span></div>
-            <div class="box">
-              <div class="meta">${cancelTarget === null ? `已选择（${selected.length} 段，共 ${selected.length * 0.5} 小时）` : "已选择待取消时段"}</div>
-              <div class="range">${cancelTarget === null ? selectedLabel() : slots[cancelTarget]}</div>
-              <div class="chips">
-                ${cancelTarget === null
-                  ? selected.map(i => `<span>${slots[i]}</span>`).join("")
-                  : `<span>预约人：${bookings[cancelTarget]}</span>`}
-              </div>
-            </div>
-
-            <button class="submit" data-submit>提交预约</button>
-            <button class="cancel-booking" data-cancel ${cancelTarget === null ? "disabled" : ""}>取消该预约</button>
-            <div class="notice">如需重约，点击已预约时段后可取消，再重新选择可预约时段。</div>
-            <div class="toast" id="toast"></div>
-          </aside>
-
-          <section class="schedule">
-            <div class="schedule-title">
-              <h2>明日（${fmtDate}）</h2>
-              <p><span class="sync">${syncModeText}</span></p>
-            </div>
-            <div class="grid">
-              ${slots.map((slot, index) => {
-                const booked = bookings[index];
-                const isSelected = selected.includes(index);
-                const isCanceling = cancelTarget === index;
-                const cls = booked ? `booked ${isCanceling ? "canceling" : ""}` : isSelected ? "selected" : "available";
-                const label = booked
-                  ? `${isCanceling ? "待取消" : "已预约"}　${booked}`
-                  : isSelected
-                    ? `已选择　${names.join(" / ") || "待填写姓名"}`
-                    : "可预约";
-
-                return `
-                  <button class="slot ${cls}" data-slot="${index}" ${isPreview ? "disabled" : ""}>
-                    <span class="time">${slot}</span>
-                    <span class="status">${label}</span>
-                  </button>
-                `;
-              }).join("")}
-            </div>
-          </section>
-        </div>
-      `;
-    }
-
-    function render() {
-      document.getElementById("realBooking").innerHTML = bookingMarkup(false);
-      document.getElementById("previewBooking").innerHTML = bookingMarkup(true);
-      bindBooking(document.getElementById("realBooking"));
-      bindBooking(document.getElementById("previewBooking"), true);
-    }
-
-    function setToast(message) {
-      const toast = document.querySelector("#realBooking #toast");
-      if (toast) toast.textContent = message;
-    }
-
-    async function loadBookingsFromStore(silent = false) {
-      if (!supabaseClient) {
-        bookings = loadLocalBookings();
-        render();
-        return;
-      }
-
-      const { data, error } = await supabaseClient
-        .from("melody_room_bookings")
-        .select("slot_index,names")
-        .eq("booking_date", dateKey)
-        .order("slot_index", { ascending: true });
-
-      if (error) {
-        if (!silent) setToast(`云端预约读取失败：${error.message}`);
-        return;
-      }
-
-      bookings = {};
-      (data || []).forEach(row => {
-        bookings[row.slot_index] = Array.isArray(row.names) ? row.names.join(" / ") : String(row.names || "");
-      });
-      render();
-    }
-
-    async function saveSelectedBookings(names, selectedSlots) {
-      const label = names.join(" / ");
-
-      if (!supabaseClient) {
-        selectedSlots.forEach(i => bookings[i] = label);
-        saveLocalBookings();
-        return;
-      }
-
-      const rows = selectedSlots.map(i => ({
-        booking_date: dateKey,
-        slot_index: i,
-        slot_label: slots[i],
-        names
-      }));
-
-      const { error } = await supabaseClient.from("melody_room_bookings").insert(rows);
-
-      if (error) {
-        await loadBookingsFromStore(true);
-        if (error.code === "23505") throw new Error("刚刚已有同学预约了其中一个时段，请重新选择。");
-        throw new Error(error.message);
-      }
-
-      await loadBookingsFromStore(true);
-    }
-
-    async function cancelSelectedBooking(slotIndex) {
-      if (!supabaseClient) {
-        delete bookings[slotIndex];
-        saveLocalBookings();
-        render();
-        return;
-      }
-
-      const { error } = await supabaseClient
-        .from("melody_room_bookings")
-        .delete()
-        .eq("booking_date", dateKey)
-        .eq("slot_index", slotIndex);
-
-      if (error) throw new Error(error.message);
-      await loadBookingsFromStore(true);
-    }
-
-    function bindBooking(root, preview = false) {
-      if (!root) return;
-
-      root.querySelectorAll("[data-back]").forEach(btn => btn.onclick = showHome);
-      if (preview) return;
-
-      root.querySelectorAll("[data-name-index]").forEach(input => {
-        input.oninput = event => {
-          people[Number(event.target.dataset.nameIndex)] = event.target.value;
-        };
-      });
-
-      root.querySelectorAll("[data-clear]").forEach(btn => {
-        btn.onclick = () => {
-          people[Number(btn.dataset.clear)] = "";
-          render();
-        };
-      });
-
-      root.querySelector("[data-add]").onclick = () => {
-        if (people.length < 2) {
-          people.push("");
-          render();
-        }
-      };
-
-      root.querySelectorAll("[data-slot]").forEach(btn => {
-        btn.onclick = () => {
-          const index = Number(btn.dataset.slot);
-
-          if (bookings[index]) {
-            cancelTarget = cancelTarget === index ? null : index;
-            selected = [];
-            render();
-            return;
-          }
-
-          cancelTarget = null;
-          const next = selected.includes(index)
-            ? selected.filter(i => i !== index)
-            : [...selected, index];
-
-          if (!continuousRange(next)) {
-            setToast("请选择连续的半小时时段；如需重选，可以先取消已选时段。");
-            return;
-          }
-
-          selected = next.sort((a, b) => a - b);
-          render();
-        };
-      });
-
-      root.querySelector("[data-submit]").onclick = async () => {
-        const names = validNames();
-
-        if (!names.length) return setToast("请至少填写一位预约人姓名。");
-        if (!selected.length) return setToast("请选择预约时间段。");
-        if (selected.some(i => bookings[i])) return setToast("所选时间已有预约，请重新选择。");
-
-        const label = names.join(" / ");
-        const range = selectedLabel();
-        const count = selected.length;
-        const selectedSlots = [...selected];
-
-        try {
-          await saveSelectedBookings(names, selectedSlots);
-          document.getElementById("successText").innerHTML = `您已成功预约 ${fmtDate}<br>${range}（共 ${count} 段）<br>预约人：${label}`;
-          document.getElementById("successModal").classList.add("show");
-          selected = [];
-          people = [""];
-          render();
-        } catch (error) {
-          setToast(error.message || "预约提交失败，请稍后重试。");
-        }
-      };
-
-      root.querySelector("[data-cancel]").onclick = async () => {
-        if (cancelTarget === null) return;
-
-        const slot = cancelTarget;
-        const label = bookings[slot];
-
-        try {
-          await cancelSelectedBooking(slot);
-          cancelTarget = null;
-          selected = [];
-          document.getElementById("successText").innerHTML = `已取消 ${fmtDate}<br>${slots[slot]}<br>原预约人：${label}`;
-          document.getElementById("successModal").classList.add("show");
-          render();
-        } catch (error) {
-          setToast(error.message || "取消失败，请稍后重试。");
-        }
-      };
-    }
-
-    function showBooking() {
-      document.getElementById("homeView").classList.add("hidden");
-      document.getElementById("bookingView").classList.add("active");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    function showHome() {
-      document.getElementById("homeView").classList.remove("hidden");
-      document.getElementById("bookingView").classList.remove("active");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    document.getElementById("enterBooking").onclick = showBooking;
-    document.getElementById("ruleFocus").onclick = () => document.getElementById("rules").scrollIntoView({ behavior: "smooth", block: "center" });
-    document.getElementById("closeModal").onclick = () => document.getElementById("successModal").classList.remove("show");
-    document.getElementById("successModal").onclick = event => {
-      if (event.target.id === "successModal") event.currentTarget.classList.remove("show");
-    };
-
-    setInterval(() => {
-      const now = new Date();
-      const nextTomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-      if (formatDateKey(nextTomorrow) !== dateKey) location.reload();
-    }, 60000);
-
-    render();
-    loadBookingsFromStore();
-
-    setInterval(() => {
-      if (supabaseClient) loadBookingsFromStore(true);
-    }, 15000);
-  </script>
-</body>
-</html>
-
-
-
+    .hero h1 { margin: 0; font-size: clamp(50px, 6.4vw, 96px); line-height: 1.05; letter-spacing: 0; color: #10231f; }
+    .hero p { width: min(630px, 100%); margin: 24px 0 32px; color: #536864; font-size: 21px; line-height: 1.72; }
