@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Melody 声乐社团活动室预约</title>
+  <style>
+    :root {
+      --bg: #f7faf9;
+      --paper: #ffffff;
+      --ink: #172522;
+      --muted: #61736f;
+      --line: #dbe8e5;
+      --line-strong: #b7d3ce;
+      --teal: #008f86;
+      --teal-dark: #006a65;
+      --teal-soft: #dff7f4;
+      --gold: #c99628;
+      --gold-soft: #fff3d8;
+      --blue: #286fe6;
+      --blue-soft: #e7f0ff;
+      --danger: #b43c2d;
+      --danger-soft: #fff0ed;
+      --shadow: 0 24px 70px rgba(31, 65, 61, 0.12);
+      font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(255,255,255,.96), rgba(255,255,255,.9)),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='820' viewBox='0 0 1200 820'%3E%3Crect width='1200' height='820' fill='%23f7faf9'/%3E%3Cg opacity='.26' stroke='%23008f86' fill='none'%3E%3Cpath d='M0 610 C170 560 310 678 520 620 S850 548 1200 646'/%3E%3Cpath d='M0 632 C170 582 310 700 520 642 S850 570 1200 668'/%3E%3Cpath d='M0 654 C170 604 310 722 520 664 S850 592 1200 690'/%3E%3Cpath d='M0 676 C170 626 310 744 520 686 S850 614 1200 712'/%3E%3C/g%3E%3Cg opacity='.19' fill='%23c99628'%3E%3Ccircle cx='104' cy='134' r='8'/%3E%3Crect x='110' y='78' width='5' height='58' rx='2'/%3E%3Cpath d='M115 80 C150 88 154 103 150 124 C138 106 124 99 115 98 Z'/%3E%3Ccircle cx='1032' cy='176' r='10'/%3E%3Crect x='1040' y='110' width='6' height='69' rx='2'/%3E%3Cpath d='M1046 112 C1084 124 1090 142 1086 164 C1070 145 1059 136 1046 132 Z'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: cover;
+      overflow-x: hidden;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; opacity: .48; }
+    svg { flex: none; }
+
+    .app { min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 46px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 3;
+    }
+    .brand { display: flex; align-items: center; gap: 13px; font-size: 25px; font-weight: 800; color: var(--teal-dark); }
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--teal), #25b7ad);
+      box-shadow: 0 12px 24px rgba(0, 143, 134, .22);
+    }
+    .brand-mark svg { width: 24px; height: 24px; }
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--teal-dark);
+      font-size: 15px;
+      font-weight: 800;
+    }
+    .user-pill button {
+      min-height: 36px;
+      padding: 0 12px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--teal-dark);
+      font-weight: 800;
+    }
+
+    .home {
+      flex: 1;
+      display: grid;
+      grid-template-columns: minmax(320px, .95fr) minmax(360px, .85fr);
+      gap: 46px;
+      align-items: center;
+      padding: 54px;
+    }
+    .hero h1 { margin: 0; font-size: clamp(50px, 6.4vw, 96px); line-height: 1.05; letter-spacing: 0; color: #10231f; }
+    .hero p { width: min(630px, 100%); margin: 24px 0 32px; color: #536864; font-size: 21px; line-height: 1.72; }
+    .wave { width: min(500px, 94%); height: 52px; margin-bottom: 24px; color: rgba(0, 143, 134, 0.42); }
+    .actions { display: grid; gap: 14px; width: min(360px, 100%); }
+    .primary, .secondary, .submit, .modal button {
+      min-height: 56px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 143, 134, .28);
+      color: #fff;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      box-shadow: 0 14px 30px rgba(0, 143, 134, .22);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      font-size: 19px;
+      font-weight: 800;
+    }
+    .secondary { background: #fff; box-shadow: none; color: var(--teal-dark); border-color: var(--line-strong); }
+    .primary svg, .secondary svg, .submit svg { width: 23px; height: 23px; }
+
+    .info-panel {
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.94);
+      box-shadow: var(--shadow);
+    }
+    .info-panel h2 { margin: 0 0 16px; color: var(--teal-dark); font-size: 24px; }
+    .rule { display: flex; align-items: center; gap: 13px; padding: 13px 0; color: #354944; font-size: 16px; border-top: 1px solid #edf3f1; }
+    .rule:first-of-type { border-top: 0; }
+    .rule svg { width: 24px; height: 24px; color: var(--teal); }
+    .piano {
+      height: 150px;
+      margin-top: 24px;
+      border-radius: 8px;
+      border: 1px solid #b9d7d2;
+      background: #122320;
+      position: relative;
+      box-shadow: 0 18px 40px rgba(24, 54, 50, .16);
+    }
+    .piano:before { content: ""; position: absolute; left: 22px; right: 22px; bottom: 20px; height: 52px; background: repeating-linear-gradient(90deg, #fff 0 22px, #dfe9e6 22px 24px); border-radius: 4px; }
+    .piano:after { content: ""; position: absolute; left: 38px; right: 52px; bottom: 49px; height: 30px; background: repeating-linear-gradient(90deg, #101918 0 13px, transparent 13px 24px); }
+
+    .login-screen, .booking-screen { display: none; min-height: calc(100vh - 78px); padding: 28px 38px; }
+    .login-screen.active, .booking-screen.active { display: grid; }
+    .login-screen.active { place-items: center; }
+    .booking-screen.active { display: block; }
+    .home.hidden { display: none; }
+    .login-card {
+      width: min(430px, 100%);
+      padding: 30px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+    .login-card h2 { margin: 0 0 10px; color: var(--teal-dark); font-size: 28px; }
+    .login-card p { margin: 0 0 22px; color: var(--muted); line-height: 1.7; }
+    .field-label { display: block; margin: 14px 0 8px; color: #253935; font-weight: 800; }
+    .login-card input {
+      width: 100%;
+      height: 50px;
+      padding: 0 14px;
+      border: 1px solid #cbdcd8;
+      border-radius: 8px;
+      outline: none;
+      color: var(--ink);
+    }
+    .login-card input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,143,134,.12); }
+    .login-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 22px; }
+
+    .booking-inner {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .booking-head {
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, #ffffff, #f4fbfa);
+    }
+    .back { color: #17302b; background: transparent; border: 0; display: flex; align-items: center; gap: 12px; font-size: 19px; font-weight: 800; }
+    .back svg { width: 22px; height: 22px; }
+    .legend { display: flex; gap: 16px; align-items: center; color: #526763; font-size: 14px; flex-wrap: wrap; }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+    .dot { width: 16px; height: 16px; border-radius: 3px; border: 1px solid currentColor; }
+    .dot.available { color: var(--teal); background: var(--teal-soft); }
+    .dot.booked { color: var(--gold); background: var(--gold-soft); }
+    .dot.selected { color: var(--blue); background: var(--blue-soft); }
+    .dot.full { color: var(--danger); background: var(--danger-soft); }
+
+    .booking-body { display: grid; grid-template-columns: 312px 1fr; gap: 14px; padding: 14px; }
+    .side-panel {
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #ffffff, #f4fbfa);
+    }
+    .panel-title { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; color: var(--teal-dark); font-size: 18px; font-weight: 800; }
+    .panel-title svg { width: 25px; height: 25px; }
+    .date-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
+    .date-tab {
+      min-height: 46px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #fff;
+      color: var(--teal-dark);
+      font-weight: 800;
+    }
+    .date-tab.active { color: #fff; background: linear-gradient(135deg, var(--teal), var(--teal-dark)); border-color: transparent; }
+    .selection-box { margin-top: 16px; padding: 16px; min-height: 154px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+    .selected-meta { color: #526763; font-size: 14px; display: flex; gap: 8px; align-items: center; }
+    .selected-meta svg { width: 20px; height: 20px; color: var(--teal); }
+    .selected-title { margin: 13px 0; font-size: 21px; color: #18322d; font-weight: 800; }
+    .selected-slots { display: flex; flex-wrap: wrap; gap: 8px; }
+    .selected-slots span { padding: 8px 10px; border-radius: 6px; border: 1px solid #96bdfb; background: var(--blue-soft); color: #174d9d; font-size: 13px; }
+    .submit { width: 100%; margin-top: 16px; font-size: 17px; }
+    .cancel-submit {
+      width: 100%;
+      min-height: 52px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: 1px solid #e2a89f;
+      color: var(--danger);
+      background: var(--danger-soft);
+      font-size: 17px;
+      font-weight: 800;
+    }
+    .notice { margin: 14px 4px 0; color: #657974; font-size: 12px; line-height: 1.6; }
+    .toast { min-height: 26px; margin-top: 10px; color: var(--danger); font-size: 13px; }
+
+    .schedule-panel { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: #fff; }
+    .schedule-title { min-height: 58px; display: flex; align-items: baseline; gap: 18px; padding: 0 18px; border-bottom: 1px solid var(--line); background: #fbfefd; }
+    .schedule-title h2 { margin: 0; color: var(--teal-dark); font-size: 19px; }
+    .schedule-title p { margin: 0; color: var(--muted); font-size: 13px; }
+    .sync-mode { color: var(--teal-dark); font-weight: 700; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(240px, 1fr)); }
+    .slot { min-height: 48px; display: grid; grid-template-columns: 112px 1fr; border: 0; border-bottom: 1px solid #e6efed; border-right: 1px solid #e6efed; background: #f4fbfa; color: #24423d; text-align: left; }
+    .slot:nth-child(2n) { border-right: 0; }
+    .time { padding: 12px 14px; border-right: 1px solid #e1ece9; color: #24423d; font-size: 14px; font-weight: 700; }
+    .status { padding: 12px 14px; font-size: 14px; display: flex; gap: 8px; align-items: center; line-height: 1.45; }
+    .slot.available:hover, .slot.joinable:hover { background: #e3f7f4; }
+    .slot.joinable { background: #f7fffd; color: #1f655f; }
+    .slot.booked { background: var(--gold-soft); color: #73510b; }
+    .slot.full { background: var(--danger-soft); color: var(--danger); cursor: not-allowed; }
+    .slot.past { background: #f2f5f4; color: #83938f; cursor: not-allowed; }
+    .slot.selected-book { background: var(--blue-soft); color: #164d9d; outline: 2px solid #286fe6; outline-offset: -2px; }
+    .slot.selected-cancel { background: var(--danger-soft); color: var(--danger); outline: 2px solid var(--danger); outline-offset: -2px; }
+
+    .modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(15, 31, 29, .28); backdrop-filter: blur(4px); padding: 24px; z-index: 5; }
+    .modal-backdrop.show { display: flex; }
+    .modal { width: min(390px, 100%); padding: 30px; text-align: center; border-radius: 8px; border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow); }
+    .check { width: 70px; height: 70px; margin: 0 auto 18px; border: 3px solid var(--teal); border-radius: 50%; display: grid; place-items: center; color: var(--teal); box-shadow: 0 0 34px rgba(0,143,134,.18); }
+    .check svg { width: 40px; height: 40px; }
+    .modal h2 { margin: 0 0 12px; font-size: 28px; }
+    .modal p { color: #526763; line-height: 1.7; margin: 0 0 20px; }
+    .modal button { width: 126px; min-height: 44px; margin: 0 auto; font-size: 16px; }
+
+    @media (max-width: 1080px) {
+      .topbar { padding: 16px 20px; align-items: flex-start; flex-direction: column; justify-content: center; }
+      .brand { font-size: 22px; }
+      .home { grid-template-columns: 1fr; padding: 34px 18px; }
+      .booking-body { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: 1fr; }
+      .slot { border-right: 0; }
+      .booking-screen, .login-screen { padding: 18px; }
+      .booking-head { align-items: flex-start; flex-direction: column; padding: 18px; }
+    }
+
+    @media (max-width: 560px) {
+      .hero h1 { font-size: 43px; }
+      .hero p { font-size: 18px; }
+      .primary, .secondary { font-size: 18px; }
+      .booking-body { padding: 8px; }
+      .time { font-size: 13px; padding: 11px 10px; }
+      .status { font-size: 13px; padding: 11px 10px; }
+      .slot { grid-template-columns: 96px 1fr; }
+      .login-actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 18V5l11-2v13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/></svg></span><span>Melody 声乐社团活动室</span></div>
+      <div class="user-pill" id="userPill"></div>
+    </header>
+
+    <section class="home" id="homeView">
+      <div class="hero">
+        <h1>Melody<br />声乐社团活动室</h1>
+        <p>这里用于声乐练习、小组排练和合唱分声部磨合。预约页面单独进入，登录后直接点击可预约时间段即可提交。</p>
+        <svg class="wave" viewBox="0 0 500 54" fill="none" aria-hidden="true"><path d="M2 27h18m8-11v22m12-30v38m15-26v16m14-34v50m16-27v20m14-39v48m16-31v26m14-18v12m14-34v40m16-22v28m16-38v48m16-30v24m14-40v52m16-31v28m16-18v12m16-34v42m16-28v26m16-42v52m17-33v30m16-20v16m16-36v42m16-26v22m16-30v36m16-20v14m14-26v28m14-16v10h20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <div class="actions">
+          <button class="primary" id="enterBooking"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 2v4M16 2v4M8 14l2.5 2.5L16 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>进入预约</button>
+          <button class="secondary" id="ruleFocus"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>查看规则</button>
+        </div>
+      </div>
+      <aside class="info-panel" id="rules" aria-label="预约规则">
+        <h2>预约规则</h2>
+        <div class="rule"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 2v4M16 2v4M3 10h18" stroke="currentColor" stroke-width="2"/></svg><span>可预约今天未开始的时间段，以及明天全天时间段</span></div>
+        <div class="rule"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>每个时间段以 30 分钟为单位</span></div>
+        <div class="rule"><svg viewBox="0 0 24 24" fill="none"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>每个半小时时段最多 2 人同时预约</span></div>
+        <div class="rule"><svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6v14m8-14v14M5 6l1 16h12l1-16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span>本人已预约的时间段可以多选取消</span></div>
+        <div class="piano"></div>
+      </aside>
+    </section>
+
+    <section class="login-screen" id="loginView">
+      <div class="login-card">
+        <h2>登录预约</h2>
+        <p>请输入你的姓名和预约密码。登录后，预约页面会用这个姓名直接提交和取消你的时间段。</p>
+        <label class="field-label" for="loginName">姓名</label>
+        <input id="loginName" autocomplete="name" placeholder="请输入你的姓名" maxlength="12" />
+        <label class="field-label" for="loginPassword">密码</label>
+        <input id="loginPassword" type="password" inputmode="numeric" placeholder="请输入预约密码" maxlength="12" />
+        <div class="login-actions">
+          <button class="secondary" id="loginBack">返回主页</button>
+          <button class="primary" id="loginSubmit">登录</button>
+        </div>
+        <div class="toast" id="loginToast"></div>
+      </div>
+    </section>
+
+    <section class="booking-screen" id="bookingView"><div class="booking-inner" id="realBooking"></div></section>
+  </div>
+
+  <div class="modal-backdrop" id="successModal" role="dialog" aria-modal="true" aria-labelledby="successTitle">
+    <div class="modal"><div class="check"><svg viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><h2 id="successTitle">操作成功</h2><p id="successText"></p><button id="closeModal">知道了</button></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://rglxqniiegfhrvkxeogn.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_2k7gdkSwcZfxhNewvz-ycw_Ufo-PfGR";
+    const LOGIN_PASSWORD = "1616";
+    const openHour = 8;
+    const closeHour = 22;
+    const slots = [];
+    for (let h = openHour; h < closeHour; h++) {
+      slots.push(`${String(h).padStart(2, '0')}:00 - ${String(h).padStart(2, '0')}:30`);
+      slots.push(`${String(h).padStart(2, '0')}:30 - ${String(h + 1).padStart(2, '0')}:00`);
+    }
+
+    function formatDateKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+    function labelDate(date) {
+      return new Intl.DateTimeFormat('zh-CN', { month: '2-digit', day: '2-digit', weekday: 'long' }).format(date);
+    }
+    function getDateOptions() {
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      return [
+        { key: formatDateKey(today), text: `今天 ${labelDate(today)}`, type: 'today', date: today },
+        { key: formatDateKey(tomorrow), text: `明天 ${labelDate(tomorrow)}`, type: 'tomorrow', date: tomorrow }
+      ];
+    }
+
+    let dateOptions = getDateOptions();
+    let activeDateKey = dateOptions[0].key;
+    let bookingsByDate = {};
+    let selectedBook = [];
+    let selectedCancel = [];
+    let currentUser = localStorage.getItem('melody-current-user') || '';
+
+    const hasSupabaseConfig = SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY.length > 20 && window.supabase;
+    const supabaseClient = hasSupabaseConfig ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+    const syncModeText = supabaseClient ? '云端同步预约情况' : '本地预览（填写 Supabase 配置后多人同步）';
+
+    const icons = {
+      arrowLeft: '<svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      note: '<svg viewBox="0 0 24 24" fill="none"><path d="M9 18V5l11-2v13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/></svg>',
+      clock: '<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+      cal: '<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 2v4M16 2v4M3 10h18M8 15l2 2 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+      trash: '<svg viewBox="0 0 24 24" fill="none"><path d="M3 6h18M8 6v14m8-14v14M5 6l1 16h12l1-16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    };
+
+    function getActiveOption() {
+      return dateOptions.find(option => option.key === activeDateKey) || dateOptions[0];
+    }
+    function storageKey(dateKey) {
+      return `melody-bookings-${dateKey}`;
+    }
+    function getActiveBookings() {
+      return bookingsByDate[activeDateKey] || {};
+    }
+    function setActiveBookings(nextBookings) {
+      bookingsByDate[activeDateKey] = nextBookings;
+    }
+    function loadLocalBookings(dateKey) {
+      try {
+        const raw = JSON.parse(localStorage.getItem(storageKey(dateKey)) || '{}');
+        const normalized = {};
+        Object.keys(raw).forEach(index => {
+          normalized[index] = Array.isArray(raw[index]) ? raw[index] : String(raw[index] || '').split(' / ').filter(Boolean);
+        });
+        return normalized;
+      } catch {
+        return {};
+      }
+    }
+    function saveLocalBookings(dateKey, bookings) {
+      localStorage.setItem(storageKey(dateKey), JSON.stringify(bookings));
+    }
+    function slotStartDate(dateKey, slotIndex) {
+      const [year, month, day] = dateKey.split('-').map(Number);
+      const startMinutes = openHour * 60 + slotIndex * 30;
+      return new Date(year, month - 1, day, Math.floor(startMinutes / 60), startMinutes % 60);
+    }
+    function isPastSlot(dateKey, slotIndex) {
+      return slotStartDate(dateKey, slotIndex).getTime() <= Date.now();
+    }
+    function namesForSlot(index) {
+      return getActiveBookings()[index] || [];
+    }
+    function slotListText(indices) {
+      return indices.map(index => slots[index]).join('、');
+    }
+    function sameName(name) {
+      return name.trim().toLowerCase() === currentUser.trim().toLowerCase();
+    }
+    function userInSlot(index) {
+      return namesForSlot(index).some(sameName);
+    }
+    function showToast(message) {
+      const toast = document.querySelector('#realBooking #toast');
+      if (toast) toast.textContent = message;
+    }
+    function showModal(title, message) {
+      document.getElementById('successTitle').textContent = title;
+      document.getElementById('successText').innerHTML = message;
+      document.getElementById('successModal').classList.add('show');
+    }
+    function resetSelections() {
+      selectedBook = [];
+      selectedCancel = [];
+    }
+    function renderUserPill() {
+      const pill = document.getElementById('userPill');
+      if (!currentUser) {
+        pill.innerHTML = '<span>未登录</span>';
+        return;
+      }
+      pill.innerHTML = `<span>当前：${currentUser}</span><button id="logoutBtn">退出</button>`;
+      document.getElementById('logoutBtn').onclick = () => {
+        currentUser = '';
+        localStorage.removeItem('melody-current-user');
+        resetSelections();
+        renderUserPill();
+        showHome();
+      };
+    }
+    function renderBooking() {
+      const option = getActiveOption();
+      const bookings = getActiveBookings();
+      const canSubmit = selectedBook.length > 0;
+      const canCancel = selectedCancel.length > 0;
+      const dateTabs = dateOptions.map(date => `<button class="date-tab ${date.key === activeDateKey ? 'active' : ''}" data-date="${date.key}">${date.text}</button>`).join('');
+      const selectedBookHtml = selectedBook.length ? selectedBook.map(index => `<span>${slots[index]}</span>`).join('') : '<span>还没有选择预约时段</span>';
+      const selectedCancelHtml = selectedCancel.length ? selectedCancel.map(index => `<span>${slots[index]}</span>`).join('') : '<span>还没有选择取消时段</span>';
+      const grid = slots.map((slot, index) => {
+        const names = bookings[index] || [];
+        const past = isPastSlot(activeDateKey, index);
+        const isMine = names.some(sameName);
+        const full = names.length >= 2;
+        const selectedForBook = selectedBook.includes(index);
+        const selectedForCancel = selectedCancel.includes(index);
+        let cls = 'available';
+        let label = '可预约';
+        let disabled = false;
+        if (past) {
+          cls = 'past';
+          label = '已过时间';
+          disabled = true;
+        } else if (selectedForBook) {
+          cls = 'selected-book';
+          label = `待预约　${currentUser}`;
+        } else if (selectedForCancel) {
+          cls = 'selected-cancel';
+          label = `待取消　${names.join(' / ')}`;
+        } else if (isMine) {
+          cls = 'booked';
+          label = `我已预约　${names.join(' / ')}`;
+        } else if (full) {
+          cls = 'full';
+          label = `已满　${names.join(' / ')}`;
+          disabled = true;
+        } else if (names.length === 1) {
+          cls = 'joinable';
+          label = `可加入　已有：${names.join(' / ')}`;
+        }
+        return `<button class="slot ${cls}" data-slot="${index}" ${disabled ? 'disabled' : ''}><span class="time">${slot}</span><span class="status">${label}</span></button>`;
+      }).join('');
+      document.getElementById('realBooking').innerHTML = `<div class="booking-head"><button class="back" data-action="back">${icons.arrowLeft}<span>返回主页</span></button><div class="legend"><span><i class="dot available"></i>可预约/可加入</span><span><i class="dot booked"></i>已有预约</span><span><i class="dot selected"></i>已选择</span><span><i class="dot full"></i>已满/已过</span></div></div><div class="booking-body"><aside class="side-panel"><div class="panel-title">${icons.note}<span>预约操作</span></div><div class="date-tabs">${dateTabs}</div><div class="selection-box"><div class="selected-meta">${icons.cal}<span>要预约的时间段（${selectedBook.length}）</span></div><div class="selected-title">点击可预约时段</div><div class="selected-slots">${selectedBookHtml}</div></div><button class="submit" data-action="submit" ${canSubmit ? '' : 'disabled'}>${icons.cal}<span>确认预约</span></button><div class="selection-box"><div class="selected-meta">${icons.trash}<span>要取消的时间段（${selectedCancel.length}）</span></div><div class="selected-title">点击我的已预约时段</div><div class="selected-slots">${selectedCancelHtml}</div></div><button class="cancel-submit" data-action="cancel" ${canCancel ? '' : 'disabled'}>确认取消</button><div class="notice">已登录：${currentUser}。一个半小时时段最多 2 人；今天只能预约还没有开始的时段，明天全天可预约。</div><div class="toast" id="toast"></div></aside><section class="schedule-panel"><div class="schedule-title"><h2>${option.text}</h2><p><span class="sync-mode">${syncModeText}</span></p></div><div class="grid">${grid}</div></section></div>`;
+      bindBooking();
+    }
+    function bindBooking() {
+      document.querySelector('[data-action="back"]').onclick = showHome;
+      document.querySelectorAll('[data-date]').forEach(button => {
+        button.onclick = () => {
+          activeDateKey = button.dataset.date;
+          resetSelections();
+          loadBookingsFromStore(activeDateKey).then(renderBooking);
+        };
+      });
+      document.querySelectorAll('[data-slot]').forEach(button => {
+        button.onclick = () => {
+          const index = Number(button.dataset.slot);
+          const names = namesForSlot(index);
+          if (isPastSlot(activeDateKey, index)) return;
+          if (names.some(sameName)) {
+            selectedBook = selectedBook.filter(item => item !== index);
+            selectedCancel = selectedCancel.includes(index) ? selectedCancel.filter(item => item !== index) : [...selectedCancel, index].sort((a, b) => a - b);
+          } else if (names.length < 2) {
+            selectedCancel = selectedCancel.filter(item => item !== index);
+            selectedBook = selectedBook.includes(index) ? selectedBook.filter(item => item !== index) : [...selectedBook, index].sort((a, b) => a - b);
+          }
+          renderBooking();
+        };
+      });
+      document.querySelector('[data-action="submit"]').onclick = submitBookings;
+      document.querySelector('[data-action="cancel"]').onclick = cancelBookings;
+    }
+    async function loadBookingsFromStore(dateKey = activeDateKey, silent = false) {
+      if (!supabaseClient) {
+        bookingsByDate[dateKey] = loadLocalBookings(dateKey);
+        return;
+      }
+      const { data, error } = await supabaseClient
+        .from('melody_room_bookings')
+        .select('slot_index,names')
+        .eq('booking_date', dateKey)
+        .order('slot_index', { ascending: true });
+      if (error) {
+        if (!silent) showToast(`云端预约读取失败：${error.message}`);
+        return;
+      }
+      const nextBookings = {};
+      (data || []).forEach(row => {
+        nextBookings[row.slot_index] = Array.isArray(row.names) ? row.names.filter(Boolean) : [];
+      });
+      bookingsByDate[dateKey] = nextBookings;
+    }
+    async function upsertOneSlot(dateKey, slotIndex) {
+      const names = namesForSlot(slotIndex);
+      if (names.some(sameName)) return;
+      if (names.length >= 2) throw new Error(`${slots[slotIndex]} 已满，请重新选择。`);
+      const nextNames = [...names, currentUser];
+      if (!supabaseClient) {
+        const bookings = getActiveBookings();
+        bookings[slotIndex] = nextNames;
+        setActiveBookings(bookings);
+        saveLocalBookings(dateKey, bookings);
+        return;
+      }
+      if (names.length === 0) {
+        const { error } = await supabaseClient.from('melody_room_bookings').insert({
+          booking_date: dateKey,
+          slot_index: slotIndex,
+          slot_label: slots[slotIndex],
+          names: nextNames
+        });
+        if (!error) return;
+        if (error.code !== '23505') throw new Error(error.message);
+        await loadBookingsFromStore(dateKey, true);
+        return upsertOneSlot(dateKey, slotIndex);
+      }
+      const { error } = await supabaseClient
+        .from('melody_room_bookings')
+        .update({ names: nextNames })
+        .eq('booking_date', dateKey)
+        .eq('slot_index', slotIndex);
+      if (error) throw new Error(error.message);
+    }
+    async function submitBookings() {
+      if (!selectedBook.length) return;
+      const targets = [...selectedBook];
+      try {
+        await loadBookingsFromStore(activeDateKey, true);
+        for (const index of targets) {
+          if (isPastSlot(activeDateKey, index)) throw new Error(`${slots[index]} 已经开始，不能预约。`);
+          await upsertOneSlot(activeDateKey, index);
+          await loadBookingsFromStore(activeDateKey, true);
+        }
+        const option = getActiveOption();
+        showModal('预约成功', `${currentUser} 已预约 ${option.text}<br>${slotListText(targets)}`);
+        resetSelections();
+        await loadBookingsFromStore(activeDateKey, true);
+        renderBooking();
+      } catch (error) {
+        await loadBookingsFromStore(activeDateKey, true);
+        renderBooking();
+        showToast(error.message || '预约提交失败，请稍后重试。');
+      }
+    }
+    async function removeUserFromOneSlot(dateKey, slotIndex) {
+      const names = namesForSlot(slotIndex);
+      if (!names.some(sameName)) return;
+      const nextNames = names.filter(name => !sameName(name));
+      if (!supabaseClient) {
+        const bookings = getActiveBookings();
+        if (nextNames.length) bookings[slotIndex] = nextNames;
+        else delete bookings[slotIndex];
+        setActiveBookings(bookings);
+        saveLocalBookings(dateKey, bookings);
+        return;
+      }
+      if (nextNames.length) {
+        const { error } = await supabaseClient
+          .from('melody_room_bookings')
+          .update({ names: nextNames })
+          .eq('booking_date', dateKey)
+          .eq('slot_index', slotIndex);
+        if (error) throw new Error(error.message);
+        return;
+      }
+      const { error } = await supabaseClient
+        .from('melody_room_bookings')
+        .delete()
+        .eq('booking_date', dateKey)
+        .eq('slot_index', slotIndex);
+      if (error) throw new Error(error.message);
+    }
+    async function cancelBookings() {
+      if (!selectedCancel.length) return;
+      const targets = [...selectedCancel];
+      try {
+        await loadBookingsFromStore(activeDateKey, true);
+        for (const index of targets) {
+          await removeUserFromOneSlot(activeDateKey, index);
+          await loadBookingsFromStore(activeDateKey, true);
+        }
+        const option = getActiveOption();
+        showModal('取消成功', `${currentUser} 已取消 ${option.text}<br>${slotListText(targets)}`);
+        resetSelections();
+        await loadBookingsFromStore(activeDateKey, true);
+        renderBooking();
+      } catch (error) {
+        await loadBookingsFromStore(activeDateKey, true);
+        renderBooking();
+        showToast(error.message || '取消失败，请稍后重试。');
+      }
+    }
+    function showHome() {
+      document.getElementById('homeView').classList.remove('hidden');
+      document.getElementById('loginView').classList.remove('active');
+      document.getElementById('bookingView').classList.remove('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    async function showBooking() {
+      dateOptions = getDateOptions();
+      if (!dateOptions.some(option => option.key === activeDateKey)) activeDateKey = dateOptions[0].key;
+      document.getElementById('homeView').classList.add('hidden');
+      document.getElementById('loginView').classList.remove('active');
+      document.getElementById('bookingView').classList.add('active');
+      await loadBookingsFromStore(activeDateKey, true);
+      renderBooking();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function showLogin() {
+      document.getElementById('homeView').classList.add('hidden');
+      document.getElementById('bookingView').classList.remove('active');
+      document.getElementById('loginView').classList.add('active');
+      document.getElementById('loginName').value = currentUser || '';
+      document.getElementById('loginPassword').value = '';
+      document.getElementById('loginToast').textContent = '';
+      setTimeout(() => document.getElementById('loginName').focus(), 80);
+    }
+    document.getElementById('enterBooking').onclick = () => currentUser ? showBooking() : showLogin();
+    document.getElementById('ruleFocus').onclick = () => document.getElementById('rules').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('loginBack').onclick = showHome;
+    document.getElementById('loginSubmit').onclick = () => {
+      const name = document.getElementById('loginName').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      if (!name) {
+        document.getElementById('loginToast').textContent = '请输入姓名。';
+        return;
+      }
+      if (password !== LOGIN_PASSWORD) {
+        document.getElementById('loginToast').textContent = '密码不正确。';
+        return;
+      }
+      currentUser = name;
+      localStorage.setItem('melody-current-user', currentUser);
+      renderUserPill();
+      showBooking();
+    };
+    document.getElementById('loginPassword').addEventListener('keydown', event => {
+      if (event.key === 'Enter') document.getElementById('loginSubmit').click();
+    });
+    document.getElementById('loginName').addEventListener('keydown', event => {
+      if (event.key === 'Enter') document.getElementById('loginPassword').focus();
+    });
+    document.getElementById('closeModal').onclick = () => document.getElementById('successModal').classList.remove('show');
+    document.getElementById('successModal').onclick = (event) => { if (event.target.id === 'successModal') event.currentTarget.classList.remove('show'); };
+    setInterval(() => {
+      const nextOptions = getDateOptions();
+      if (nextOptions[0].key !== dateOptions[0].key) location.reload();
+      if (document.getElementById('bookingView').classList.contains('active')) renderBooking();
+    }, 60000);
+    setInterval(async () => {
+      if (supabaseClient && document.getElementById('bookingView').classList.contains('active')) {
+        await loadBookingsFromStore(activeDateKey, true);
+        renderBooking();
+      }
+    }, 15000);
+    renderUserPill();
+  </script>
+</body>
+</html>
